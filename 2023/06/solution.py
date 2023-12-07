@@ -14,4 +14,8 @@ def calculate(t, d):
     return (ceil((t + delta) / 2) - floor((t - delta) / 2)) - 1
 
 
+# part 1
 print(prod([calculate(t, d) for t, d in zip(*(map(int, l.split()) for l in data))]))
+
+# part 2
+print(calculate(*[int(l.replace(" ", "")) for l in data]))
