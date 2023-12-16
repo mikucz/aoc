@@ -11,10 +11,10 @@ with open("input.txt") as f:
     ]
 
 
-def mirror_index(m):
+def mirror_index(m, smudge=0):
     for i in range(1, m.shape[0]):
         a, b = m[max(0, 2 * i - m.shape[0]) : i], m[i : min(2 * i, m.shape[0])]
-        if not np.count_nonzero(a != b[::-1]):
+        if np.count_nonzero(a != b[::-1]) == smudge:
             return i
     return 0
 
@@ -23,6 +23,15 @@ print(
     sum(
         [
             mirror_index(mirror) * 100 or mirror_index(mirror.transpose())
+            for mirror in data
+        ]
+    )
+)
+# part 2
+print(
+    sum(
+        [
+            mirror_index(mirror, 1) * 100 or mirror_index(mirror.transpose(), 1)
             for mirror in data
         ]
     )
