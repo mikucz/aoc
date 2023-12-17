@@ -1,11 +1,9 @@
 #!/usr/bin/env python
-import sys
 from enum import IntEnum
 
 with open("input.txt") as f:
-    data = [l.strip() for l in f]
-energized = [[0 for _ in l] for l in data]
-
+    data = [line.strip() for line in f]
+a = [[c for c in l] for l in data]
 Direction = IntEnum("Direction", ["left", "up", "right", "down"])
 
 next_direction = {
@@ -42,28 +40,37 @@ move = {
     Direction.down: (1, 0),
 }
 
-max_y, max_x = len(data), len(data[0])
-
-cnt = 0
-
-loops = set()
+h, w = len(data), len(data[0])
 
 
-sys.setrecursionlimit(3000)
+def trace_beams(d: Direction, y, x):
+    beams, visited_tiles = {(y, x, d)}, set()
+    while beams:
+        yo, xo, d = beams.pop()
+        y, x = yo + move[d][0], xo + move[d][1]
+        if (y, x, d) not in visited_tiles and 0 <= y < h and 0 <= x < w:
+            visited_tiles.add((y, x, d))
+            for next_d in next_direction[(d, data[y][x])]:
+                beams.add((y, x, next_d))
+    return len({(y, x) for y, x, _ in visited_tiles})
 
 
-def trace_beam(direction: Direction, y, x):
-    tile = data[y][x]
-    energized[y][x] = 1
-    if (direction, y, x) in loops:
-        return
-    loops.add((direction, y, x))
-    for d in next_direction[(direction, tile)]:
-        ny, nx = y + move[d][0], x + move[d][1]
-        if not 0 <= ny < max_y or not 0 <= nx < max_x:
-            continue
-        trace_beam(d, ny, nx)
+# part 1
+print(trace_beams(Direction.right, 0, -1))
 
-
-trace_beam(Direction.right, 0, 0)
-print(sum(sum(l) for l in energized))
+# part 2
+print(
+    max(
+        max(
+            max(trace_beams(Direction.right, i, -1), trace_beams(Direction.left, i, w))
+            for i in range(h)  # find mix in beam for each row
+        ),
+        max(
+            max(
+                trace_beams(Direction.down, -1, i),
+                trace_beams(Direction.up, h, i),
+            )
+            for i in range(w)  # find mix in beam for each col
+        ),
+    )
+)
