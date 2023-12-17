@@ -27,14 +27,14 @@ allowed_direction = {
 }
 
 
-def find_path(step_max):
+def find_path(step_min, step_max):
     todo, done = [
         (0, 0, 0, Direction.right, step_max),
         (0, 0, 0, Direction.down, step_max),
     ], set()
     while todo:
         heat, y, x, d, steps = heappop(todo)
-        y, x, steps = y + move[d][0], x + move[d][1], steps - 1
+        y, x, steps = (y + move[d][0], x + move[d][1], steps - 1)
         if (y, x, d, steps) not in done and 0 <= y < h and 0 <= x < w:
             done.add((y, x, d, steps))
             heat += data[y][x]
@@ -42,8 +42,12 @@ def find_path(step_max):
                 return heat
             if steps:  # continue in same direction
                 heappush(todo, (heat, y, x, d, steps))
-            for new_d in allowed_direction[d]:  # change direction reset steps
-                heappush(todo, (heat, y, x, new_d, step_max))
+            if step_max - steps >= step_min:  # part 2 change direction after step_min
+                for new_d in allowed_direction[d]:  # change direction reset steps
+                    heappush(todo, (heat, y, x, new_d, step_max))
 
 
-print(find_path(3))
+# part 1
+print(find_path(1, 3))
+# part 2
+print(find_path(4, 10))
